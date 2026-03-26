@@ -1,7 +1,7 @@
 library(glmnet)
 
 
-data <- read.csv("players_15.csv")
+data <- read.csv("filtered_timeseries_fifa_players.csv")
 
 
 data <- na.omit(data)

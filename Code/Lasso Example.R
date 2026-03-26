@@ -1,14 +1,11 @@
+# Loading the library
 library(glmnet)
 
-data <- read.csv("filtered_timeseries_fifa_players.csv")
-data <- na.omit(data)
+# Loading the data
+data(swiss)
 
-x_vars <- data[, sapply(data, is.numeric)]
-x_vars <- x_vars[, colnames(x_vars) != "value_eur"]
-x_vars <- as.matrix(x_vars)
-
-x_vars <- model.matrix(value_eur~. , data)[,-1]
-y_var <- data$value_eur
+x_vars <- model.matrix(Fertility ~ ., swiss)[, -1]
+y_var <- swiss$Fertility
 lambda_seq <- 10^seq(2, -2, by = -0.1)
 
 # Splitting the data into train and test
