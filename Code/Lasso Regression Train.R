@@ -3,9 +3,9 @@ library(glmnet)
 data <- read.csv("filtered_timeseries_fifa_players.csv")
 data <- na.omit(data)
 
-x_vars <- data[, sapply(data, is.numeric)]
-x_vars <- x_vars[, colnames(x_vars) != "value_eur"]
-x_vars <- as.matrix(x_vars)
+#x_vars <- data[, sapply(data, is.numeric)]
+#x_vars <- x_vars[, colnames(x_vars) != "value_eur"]
+#x_vars <- as.matrix(x_vars)
 
 x_vars <- model.matrix(value_eur~. , data)[,-1]
 y_var <- data$value_eur
