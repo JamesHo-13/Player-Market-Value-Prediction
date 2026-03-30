@@ -2,6 +2,7 @@ library(tidyverse)
 library(dplyr)
 
 players <- read_csv("filtered_timeseries_fifa_players.csv", na = c('', 'NA', 'missing'))
+players <- select(players, -1)
 head(players)
 
 column_names <- colnames(players)
@@ -31,3 +32,10 @@ table(players_grouped$group)
 attackers   <- filter(players_grouped, group == "Attacker")
 midfielders <- filter(players_grouped, group == "Midfielder")
 defenders   <- filter(players_grouped, group == "Defender")
+
+
+attackers <- select(attackers, -55:-96)
+midfielders <- select(midfielders, -55: -96)
+defenders <- select(defenders, -55:-96)
+
+

@@ -12,12 +12,15 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 # نگاه at structure (important!)
 str(data)
 
+data <- select(data, -56:-97)
+data$sofifa_id <- NULL
+
 # -----------------------------
 # 3. Clean / prepare data
 # -----------------------------
 # Remove non-numeric columns if needed (e.g., names, IDs)
 # Keep only numeric variables for glmnet
-numeric_data <- data[, sapply(data, is.numeric)]
+numeric_data <- attackers[, sapply(attackers, is.numeric)]
 
 # Remove rows with missing values
 numeric_data <- na.omit(numeric_data)
@@ -113,47 +116,47 @@ coef(lasso_best)
 # -----------------------------
 
 # Plot coefficient paths
-plot(lasso_best, xvar = "lambda", label = TRUE)
-
-plot(cv_output)
-
-# Extract coefficients
-coef_matrix <- coef(lasso_best)
-
-# Convert to dataframe
-coef_df <- data.frame(
-  Variable = rownames(coef_matrix),
-  Coefficient = as.numeric(coef_matrix)
-)
-
-# Remove zero coefficients
-coef_df <- coef_df[coef_df$Coefficient != 0, ]
-
-# Remove intercept
-coef_df <- coef_df[coef_df$Variable != "(Intercept)", ]
-
-# Sort by importance
-coef_df <- coef_df[order(abs(coef_df$Coefficient), decreasing = TRUE), ]
-
-# Take top 15 most important variables
-top_coef <- head(coef_df, 15)
-
-# Plot
-barplot(
-  top_coef$Coefficient,
-  names.arg = top_coef$Variable,
-  las = 2,
-  main = "Top 15 LASSO Coefficients",
-  cex.names = 0.7
-)
-
-ggplot(top_coef, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  labs(title = "Top 15 LASSO Coefficients",
-       x = "Variables",
-       y = "Coefficient Value") +
-  theme_minimal()
+# plot(lasso_best, xvar = "lambda", label = TRUE)
+# 
+# plot(cv_output)
+# 
+# # Extract coefficients
+# coef_matrix <- coef(lasso_best)
+# 
+# # Convert to dataframe
+# coef_df <- data.frame(
+#   Variable = rownames(coef_matrix),
+#   Coefficient = as.numeric(coef_matrix)
+# )
+# 
+# # Remove zero coefficients
+# coef_df <- coef_df[coef_df$Coefficient != 0, ]
+# 
+# # Remove intercept
+# coef_df <- coef_df[coef_df$Variable != "(Intercept)", ]
+# 
+# # Sort by importance
+# coef_df <- coef_df[order(abs(coef_df$Coefficient), decreasing = TRUE), ]
+# 
+# # Take top 15 most important variables
+# top_coef <- head(coef_df, 15)
+# 
+# # Plot
+# barplot(
+#   top_coef$Coefficient,
+#   names.arg = top_coef$Variable,
+#   las = 2,
+#   main = "Top 15 LASSO Coefficients",
+#   cex.names = 0.7
+# )
+# 
+# ggplot(top_coef, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
+#   geom_bar(stat = "identity") +
+#   coord_flip() +
+#   labs(title = "Top 15 LASSO Coefficients",
+#        x = "Variables",
+#        y = "Coefficient Value") +
+#   theme_minimal()
 
 ggplot(top_coef, aes(x = reorder(Variable, Coefficient), 
                      y = Coefficient,
@@ -161,7 +164,7 @@ ggplot(top_coef, aes(x = reorder(Variable, Coefficient),
   geom_bar(stat = "identity") +
   coord_flip() +
   scale_fill_manual(values = c("red", "blue")) +
-  labs(title = "LASSO Coefficients (Positive vs Negative)",
+  labs(title = "LASSO Coefficients (Positive vs Negative) - attackers",
        x = "Variables",
        fill = "Positive Effect") +
   theme_minimal()
@@ -180,6 +183,7 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 # 3. Clean data
 # -----------------------------
 # Remove ID columns (IMPORTANT)
+data <- select(data, -56:-97)
 data$sofifa_id <- NULL
 
 # Keep numeric columns only
@@ -218,7 +222,7 @@ y_test <- y_var[-train]
 # -----------------------------
 cv_output <- cv.glmnet(
   x_train, y_train,
-  alpha = .5,              # ✅ Elastic Net
+  alpha = 0.5,              # ✅ Elastic Net
   lambda = lambda_seq,
   nfolds = 5,
   standardize = TRUE        # ✅ Ensure scaling
@@ -324,23 +328,23 @@ top_coef <- head(coef_df, 15)
 # -----------------------------
 # Base R bar plot
 # -----------------------------
-barplot(
-  top_coef$Coefficient,
-  names.arg = top_coef$Variable,
-  las = 2,
-  cex.names = 0.7,
-  main = "Top 15 Elastic Net Coefficients (Log Model)"
-)
-
-ggplot(top_coef, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  labs(
-    title = "Top 15 Most Important Variables (Elastic Net)",
-    x = "Variables",
-    y = "Coefficient (Log Scale Effect)"
-  ) +
-  theme_minimal()
+# barplot(
+#   top_coef$Coefficient,
+#   names.arg = top_coef$Variable,
+#   las = 2,
+#   cex.names = 0.7,
+#   main = "Top 15 Elastic Net Coefficients (Log Model)"
+# )
+# 
+# ggplot(top_coef, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
+#   geom_bar(stat = "identity") +
+#   coord_flip() +
+#   labs(
+#     title = "Top 15 Most Important Variables (Elastic Net)",
+#     x = "Variables",
+#     y = "Coefficient (Log Scale Effect)"
+#   ) +
+#   theme_minimal()
 
 ggplot(top_coef, aes(x = reorder(Variable, Coefficient), 
                      y = Coefficient,
