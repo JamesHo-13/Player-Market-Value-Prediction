@@ -1,7 +1,7 @@
 library(tidyverse)
 library(dplyr)
 
-players <- read_csv("players_15.csv", na = c('', 'NA', 'missing'))
+players <- read_csv("filtered_timeseries_fifa_players.csv", na = c('', 'NA', 'missing'))
 head(players)
 
 column_names <- colnames(players)
