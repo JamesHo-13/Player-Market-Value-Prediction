@@ -20,7 +20,7 @@ data$sofifa_id <- NULL
 # -----------------------------
 # Remove non-numeric columns if needed (e.g., names, IDs)
 # Keep only numeric variables for glmnet
-numeric_data <- attackers[, sapply(attackers, is.numeric)]
+numeric_data <- data[, sapply(data, is.numeric)]
 
 # Remove rows with missing values
 numeric_data <- na.omit(numeric_data)
@@ -164,7 +164,7 @@ ggplot(top_coef, aes(x = reorder(Variable, Coefficient),
   geom_bar(stat = "identity") +
   coord_flip() +
   scale_fill_manual(values = c("red", "blue")) +
-  labs(title = "LASSO Coefficients (Positive vs Negative) - attackers",
+  labs(title = "LASSO Coefficients (Positive vs Negative)",
        x = "Variables",
        fill = "Positive Effect") +
   theme_minimal()
