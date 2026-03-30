@@ -183,7 +183,7 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 data$sofifa_id <- NULL
 
 # Keep numeric columns only
-numeric_data <- defenders[, sapply(defenders, is.numeric)]
+numeric_data <- data[, sapply(data, is.numeric)]
 
 # Remove missing values
 numeric_data <- na.omit(numeric_data)
@@ -218,7 +218,7 @@ y_test <- y_var[-train]
 # -----------------------------
 cv_output <- cv.glmnet(
   x_train, y_train,
-  alpha = 0.5,              # ✅ Elastic Net
+  alpha = .5,              # ✅ Elastic Net
   lambda = lambda_seq,
   nfolds = 5,
   standardize = TRUE        # ✅ Ensure scaling
