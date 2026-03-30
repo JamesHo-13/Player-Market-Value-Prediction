@@ -222,7 +222,7 @@ y_test <- y_var[-train]
 # -----------------------------
 cv_output <- cv.glmnet(
   x_train, y_train,
-  alpha = 0.5,              # ✅ Elastic Net
+  alpha = 0.3,              # ✅ Elastic Net
   lambda = lambda_seq,
   nfolds = 5,
   standardize = TRUE        # ✅ Ensure scaling
@@ -237,7 +237,7 @@ print(best_lam)
 # -----------------------------
 elastic_best <- glmnet(
   x_train, y_train,
-  alpha = 0.5,
+  alpha = 0.3,
   lambda = best_lam
 )
 
