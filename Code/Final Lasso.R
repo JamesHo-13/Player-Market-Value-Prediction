@@ -3,6 +3,8 @@
 # -----------------------------
 library(glmnet)
 library(ggplot2)
+library(tidyverse)
+library(dplyr)
 
 # -----------------------------
 # 2. Load your dataset
@@ -120,26 +122,26 @@ coef(lasso_best)
 # 
 # plot(cv_output)
 # 
-# # Extract coefficients
-# coef_matrix <- coef(lasso_best)
-# 
-# # Convert to dataframe
-# coef_df <- data.frame(
-#   Variable = rownames(coef_matrix),
-#   Coefficient = as.numeric(coef_matrix)
-# )
-# 
-# # Remove zero coefficients
-# coef_df <- coef_df[coef_df$Coefficient != 0, ]
-# 
-# # Remove intercept
-# coef_df <- coef_df[coef_df$Variable != "(Intercept)", ]
-# 
-# # Sort by importance
-# coef_df <- coef_df[order(abs(coef_df$Coefficient), decreasing = TRUE), ]
-# 
-# # Take top 15 most important variables
-# top_coef <- head(coef_df, 15)
+# Extract coefficients
+coef_matrix <- coef(lasso_best)
+
+# Convert to dataframe
+coef_df <- data.frame(
+  Variable = rownames(coef_matrix),
+  Coefficient = as.numeric(coef_matrix)
+)
+
+# Remove zero coefficients
+coef_df <- coef_df[coef_df$Coefficient != 0, ]
+
+# Remove intercept
+coef_df <- coef_df[coef_df$Variable != "(Intercept)", ]
+
+# Sort by importance
+coef_df <- coef_df[order(abs(coef_df$Coefficient), decreasing = TRUE), ]
+
+# Take top 15 most important variables
+top_coef <- head(coef_df, 15)
 # 
 # # Plot
 # barplot(
@@ -201,9 +203,14 @@ y_var <- log(numeric_data$value_eur)
 x_vars <- model.matrix(value_eur ~ ., numeric_data)[, -1]
 
 # -----------------------------
+# Testing
+lambda_seq <- 10^seq(3, -4, by = -0.1)
+# -----------------------------
+
+# -----------------------------
 # 5. Lambda sequence
 # -----------------------------
-lambda_seq <- 10^seq(2, -2, by = -0.1)
+#lambda_seq <- 10^seq(2, -2, by = -0.1)
 
 # -----------------------------
 # 6. Train/Test split
@@ -222,7 +229,7 @@ y_test <- y_var[-train]
 # -----------------------------
 cv_output <- cv.glmnet(
   x_train, y_train,
-  alpha = 0.3,              # ✅ Elastic Net
+  alpha = 0.5,              # ✅ Elastic Net
   lambda = lambda_seq,
   nfolds = 5,
   standardize = TRUE        # ✅ Ensure scaling
@@ -237,7 +244,7 @@ print(best_lam)
 # -----------------------------
 elastic_best <- glmnet(
   x_train, y_train,
-  alpha = 0.3,
+  alpha = 0.5,
   lambda = best_lam
 )
 
@@ -247,9 +254,19 @@ elastic_best <- glmnet(
 pred_train_log <- predict(elastic_best, s = best_lam, newx = x_train)
 pred_test_log  <- predict(elastic_best, s = best_lam, newx = x_test)
 
-# Convert back to original scale
-pred_train <- exp(pred_train_log)
-pred_test  <- exp(pred_test_log)
+# -----------------------------
+# Testing
+# Smearing estimator
+smear_factor <- mean(exp(y_train - pred_train_log))
+
+# Apply correction
+pred_train <- exp(pred_train_log) * smear_factor
+pred_test  <- exp(pred_test_log) * smear_factor
+# -----------------------------
+
+# # Convert back to original scale
+# pred_train <- exp(pred_train_log)
+# pred_test  <- exp(pred_test_log)
 
 # Actual values (back to original scale)
 y_train_actual <- exp(y_train)
@@ -290,10 +307,10 @@ coef(elastic_best)
 # 13. Plots (recommended)
 # -----------------------------
 # Cross-validation plot
-plot(cv_output)
-
-# Coefficient paths
-plot(elastic_best, xvar = "lambda", label = TRUE)
+# plot(cv_output)
+# 
+# # Coefficient paths
+# plot(elastic_best, xvar = "lambda", label = TRUE)
 
 # -----------------------------
 # Extract coefficients
@@ -315,7 +332,7 @@ coef_df <- coef_df[coef_df$Coefficient != 0, ]
 coef_df <- coef_df[coef_df$Variable != "(Intercept)", ]
 
 # OPTIONAL: remove tiny coefficients (noise from log model)
-coef_df <- coef_df[abs(coef_df$Coefficient) > 0.01, ]
+#coef_df <- coef_df[abs(coef_df$Coefficient) > 0.01, ]
 
 # -----------------------------
 # Sort by importance

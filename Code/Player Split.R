@@ -35,7 +35,7 @@ defenders   <- filter(players_grouped, group == "Defender")
 
 
 attackers <- select(attackers, -55:-96)
-midfielders <- select(midfielders, -55: -96)
+midfielders <- select(midfielders, -55:-96)
 defenders <- select(defenders, -55:-96)
 
 
