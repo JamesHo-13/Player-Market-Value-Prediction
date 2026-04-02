@@ -200,6 +200,7 @@ numeric_data <- na.omit(numeric_data)
 y_var <- log(numeric_data$value_eur)
 
 # Create predictors
+numeric_data <- as.data.frame(scale(numeric_data))
 x_vars <- model.matrix(value_eur ~ ., numeric_data)[, -1]
 
 # -----------------------------
