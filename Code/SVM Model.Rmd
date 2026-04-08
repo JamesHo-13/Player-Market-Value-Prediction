@@ -1,0 +1,144 @@
+---
+title: "SVM Model"
+output: html_notebook
+---
+```{r setup}
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      now <<- Sys.time()
+    } else {
+      res <- difftime(Sys.time(), now, units = "secs")
+      paste("Time for this chunk:", round(res, 2), "seconds")
+    }
+  }
+}))
+knitr::opts_chunk$set(time_it = TRUE)
+
+```
+
+
+```{r}
+library(e1071)
+library(dplyr)
+library(caret)
+
+```
+
+
+```{r}
+setwd("D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
+data <- read.csv("filtered_timeseries_fifa_players.csv")
+var <- read.csv("variables.csv")
+
+var <- as.character(unlist(var))
+df <- data %>% select(all_of(var)) %>% na.omit()
+
+```
+
+
+```{r}
+set.seed(123)
+
+train_index <- createDataPartition(df$potential, p = 0.8, list = FALSE)
+train <- df[train_index, ]
+test  <- df[-train_index, ]
+
+```
+
+
+```{r}
+preproc <- preProcess(train, method = c("center", "scale"))
+
+train_scaled <- predict(preproc, train)
+test_scaled  <- predict(preproc, test)
+
+```
+
+
+```{r}
+svm_model <- svm(
+  potential ~ .,
+  data = train_scaled,
+  type = "eps-regression",
+  kernel = "radial"
+)
+
+```
+
+
+```{r}
+preds <- predict(svm_model, test_scaled)
+
+```
+
+
+```{r}
+rmse <- sqrt(mean((preds - test_scaled$potential)^2))
+mae  <- mean(abs(preds - test_scaled$potential))
+
+rmse
+mae
+
+```
+
+
+```{r}
+ctrl <- trainControl(
+  method = "cv",
+  number = 5
+)
+
+```
+
+
+```{r}
+svm_grid <- expand.grid(
+  sigma = c(0.001, 0.01, 0.1),
+  C = c(0.1, 1, 10, 50)
+)
+
+```
+
+
+```{r}
+svm_tuned <- train(
+  potential ~ .,
+  data = train_scaled,
+  method = "svmRadial",
+  trControl = ctrl,
+  tuneGrid = svm_grid,
+  metric = "RMSE"
+)
+
+```
+
+
+```{r}
+svm_tuned$bestTune
+
+```
+
+
+```{r}
+preds_tuned <- predict(svm_tuned, test_scaled)
+
+```
+
+
+```{r}
+rmse_tuned <- sqrt(mean((preds_tuned - test_scaled$potential)^2))
+mae_tuned  <- mean(abs(preds_tuned - test_scaled$potential))
+
+rmse_tuned
+mae_tuned
+
+```
+
+
+```{r}
+plot(svm_tuned)
+
+```
+
