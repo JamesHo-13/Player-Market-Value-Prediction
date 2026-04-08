@@ -3,6 +3,7 @@ title: "SVM Model"
 output: html_notebook
 ---
 ```{r setup}
+library(knitr)
 knitr::knit_hooks$set(time_it = local({
   now <- NULL
   function(before, options) {
