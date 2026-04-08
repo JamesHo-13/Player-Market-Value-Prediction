@@ -185,7 +185,7 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 # 3. Clean data
 # -----------------------------
 # Remove ID columns (IMPORTANT)
-data <- select(data, -56:-97)
+data <- select(data, -56:-97, -5, -8)
 data$sofifa_id <- NULL
 
 # Keep numeric columns only
@@ -364,7 +364,7 @@ top_coef <- head(coef_df, 15)
 #   ) +
 #   theme_minimal()
 
-ggplot(top_coef, aes(x = reorder(Variable, Coefficient), 
+ggplot(coef_df, aes(x = reorder(Variable, Coefficient), 
                      y = Coefficient,
                      fill = Coefficient > 0)) +
   geom_bar(stat = "identity") +
