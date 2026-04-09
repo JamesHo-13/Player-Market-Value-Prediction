@@ -29,7 +29,8 @@ library(caret)
 
 
 ```{r}
-setwd("D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
+#setwd("D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
+setwd("~/Project/STAT-472-Project/Data Frame")
 data <- read.csv("filtered_timeseries_fifa_players.csv")
 var <- read.csv("variables.csv")
 
