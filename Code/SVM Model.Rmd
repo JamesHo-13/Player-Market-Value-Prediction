@@ -5,17 +5,19 @@ output: html_notebook
 ```{r setup}
 library(knitr)
 knitr::knit_hooks$set(time_it = local({
-  now <- NULL
-  function(before, options) {
-    if (before) {
-      now <<- Sys.time()
-    } else {
-      res <- difftime(Sys.time(), now, units = "secs")
-      paste("Time for this chunk:", round(res, 2), "seconds")
-    }
-  }
+ now <- NULL
+ function(before, options) {
+   if (before) {
+     now <<- Sys.time()
+   } else {
+     res <- difftime(Sys.time(), now, units = "secs")
+     paste("Time for this chunk:", round(res, 2), "seconds")
+   }
+ }
 }))
 knitr::opts_chunk$set(time_it = TRUE)
+
+knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
 
 ```
 
@@ -29,8 +31,6 @@ library(caret)
 
 
 ```{r}
-#setwd("D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
-setwd("~/Project/STAT-472-Project/Data Frame")
 data <- read.csv("filtered_timeseries_fifa_players.csv")
 var <- read.csv("variables.csv")
 
@@ -105,13 +105,21 @@ svm_grid <- expand.grid(
 
 
 ```{r}
+# svm_tuned <- train(
+#   potential ~ .,
+#   data = train_scaled,
+#   method = "svmRadial",
+#   trControl = ctrl,
+#   tuneGrid = svm_grid,
+#   metric = "RMSE"
+# )
+
 svm_tuned <- train(
   potential ~ .,
   data = train_scaled,
   method = "svmRadial",
-  trControl = ctrl,
-  tuneGrid = svm_grid,
-  metric = "RMSE"
+  trControl = trainControl(method = "cv", number = 5),
+  tuneLength = 5   # tries 5 random combos
 )
 
 ```
