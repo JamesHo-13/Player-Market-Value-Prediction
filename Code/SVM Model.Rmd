@@ -26,6 +26,7 @@ knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project
 library(e1071)
 library(dplyr)
 library(caret)
+library(doParallel)
 
 ```
 
@@ -35,7 +36,7 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 var <- read.csv("variables.csv")
 
 var <- as.character(unlist(var))
-df <- data %>% select(all_of(var)) %>% na.omit()
+df <- data %>% select(all_of(var), 7) %>% na.omit()
 
 ```
 
@@ -43,7 +44,7 @@ df <- data %>% select(all_of(var)) %>% na.omit()
 ```{r}
 set.seed(123)
 
-train_index <- createDataPartition(df$potential, p = 0.8, list = FALSE)
+train_index <- createDataPartition(df$value_eur, p = 0.6, list = FALSE)
 train <- df[train_index, ]
 test  <- df[-train_index, ]
 
@@ -61,7 +62,7 @@ test_scaled  <- predict(preproc, test)
 
 ```{r}
 svm_model <- svm(
-  potential ~ .,
+  value_eur ~ .,
   data = train_scaled,
   type = "eps-regression",
   kernel = "radial"
@@ -77,8 +78,8 @@ preds <- predict(svm_model, test_scaled)
 
 
 ```{r}
-rmse <- sqrt(mean((preds - test_scaled$potential)^2))
-mae  <- mean(abs(preds - test_scaled$potential))
+rmse <- sqrt(mean((preds - test_scaled$value_eur)^2))
+mae  <- mean(abs(preds - test_scaled$value_eur))
 
 rmse
 mae
@@ -89,16 +90,22 @@ mae
 ```{r}
 ctrl <- trainControl(
   method = "cv",
-  number = 5
+  number = 3,
+  search = "random"
 )
 
 ```
 
 
 ```{r}
+# svm_grid <- expand.grid(
+#   sigma = c(0.001, 0.01, 0.1),
+#   C = c(0.1, 1, 10, 50)
+# )
+
 svm_grid <- expand.grid(
-  sigma = c(0.001, 0.01, 0.1),
-  C = c(0.1, 1, 10, 50)
+  sigma = c(0.01, 0.1),
+  C = c(1, 10)
 )
 
 ```
@@ -106,7 +113,7 @@ svm_grid <- expand.grid(
 
 ```{r}
 # svm_tuned <- train(
-#   potential ~ .,
+#   value_eur ~ .,
 #   data = train_scaled,
 #   method = "svmRadial",
 #   trControl = ctrl,
@@ -115,10 +122,10 @@ svm_grid <- expand.grid(
 # )
 
 svm_tuned <- train(
-  potential ~ .,
+  value_eur ~ .,
   data = train_scaled,
   method = "svmRadial",
-  trControl = trainControl(method = "cv", number = 5),
+  trControl = ctrl,
   tuneLength = 5   # tries 5 random combos
 )
 
@@ -138,8 +145,9 @@ preds_tuned <- predict(svm_tuned, test_scaled)
 
 
 ```{r}
-rmse_tuned <- sqrt(mean((preds_tuned - test_scaled$potential)^2))
-mae_tuned  <- mean(abs(preds_tuned - test_scaled$potential))
+rmse_tuned <- sqrt(mean((preds_tuned - test_scaled$value_eur)^2))
+mae_tuned  <- mean(abs(preds_tuned - test_scaled$value_eur))
+
 
 rmse_tuned
 mae_tuned
