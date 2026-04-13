@@ -17,8 +17,8 @@ knitr::knit_hooks$set(time_it = local({
 }))
 knitr::opts_chunk$set(time_it = TRUE)
 
-#knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
-knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
+knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
+#knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
 
 ```
 
@@ -207,11 +207,23 @@ ggplot(df_plot, aes(x = Actual, y = Predicted)) +
            label = paste("R² =", round(r2, 3)),
            hjust = 0, size = 5) +
   labs(
-    title = "Predicted vs Actual Potential (SVM)",
-    x = "Actual Potential",
-    y = "Predicted Potential"
+    title = "Predicted vs Actual Value (SVM)",
+    x = "Actual Value",
+    y = "Predicted Value"
   ) +
   theme_minimal()
+
+```
+
+
+```{r}
+w <- t(final_model$coefs) %*% final_model$SV
+importance <- apply(w, 2, function(v) sqrt(sum(v^2)))
+sort(importance, decreasing = TRUE)
+
+test <- data.frame(importance)
+colnames(test) <- c("variables", "importance")
+
 
 ```
 
