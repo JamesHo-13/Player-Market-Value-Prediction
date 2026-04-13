@@ -17,7 +17,8 @@ knitr::knit_hooks$set(time_it = local({
 }))
 knitr::opts_chunk$set(time_it = TRUE)
 
-knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
+#knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
+knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
 
 ```
 
@@ -27,6 +28,7 @@ library(e1071)
 library(dplyr)
 library(caret)
 library(doParallel)
+library(ggplot2)
 
 ```
 
@@ -44,7 +46,7 @@ df <- data %>% select(all_of(var), 7) %>% na.omit()
 ```{r}
 set.seed(123)
 
-train_index <- createDataPartition(df$value_eur, p = 0.6, list = FALSE)
+train_index <- createDataPartition(df$value_eur, p = 0.7, list = FALSE)
 train <- df[train_index, ]
 test  <- df[-train_index, ]
 
@@ -78,11 +80,21 @@ preds <- predict(svm_model, test_scaled)
 
 
 ```{r}
-rmse <- sqrt(mean((preds - test_scaled$value_eur)^2))
-mae  <- mean(abs(preds - test_scaled$value_eur))
+# rmse <- sqrt(mean((preds - test_scaled$value_eur)^2))
+# mae  <- mean(abs(preds - test_scaled$value_eur))
+# 
+# rmse
+# mae
+# R2(preds, test_scaled$value_eur)
 
-rmse
-mae
+postResample(pred = preds, obs = test_scaled$value_eur)
+
+```
+
+
+```{r}
+cl <- makeCluster(parallel::detectCores() - 1)
+registerDoParallel(cl)
 
 ```
 
@@ -133,30 +145,73 @@ svm_tuned <- train(
 
 
 ```{r}
+stopCluster(cl)
+```
+
+
+```{r}
 svm_tuned$bestTune
 
 ```
 
 
 ```{r}
-preds_tuned <- predict(svm_tuned, test_scaled)
+cl <- makeCluster(parallel::detectCores() - 1)
+registerDoParallel(cl)
 
 ```
 
 
 ```{r}
-rmse_tuned <- sqrt(mean((preds_tuned - test_scaled$value_eur)^2))
-mae_tuned  <- mean(abs(preds_tuned - test_scaled$value_eur))
+final_model <- svm(
+  value_eur ~ .,
+  data = train_scaled,
+  kernel = "radial",
+  cost = svm_tuned$bestTune$C,
+  gamma = svm_tuned$bestTune$sigma
+)
 
-
-rmse_tuned
-mae_tuned
+stopCluster(cl)
 
 ```
 
 
 ```{r}
-plot(svm_tuned)
+preds <- predict(final_model, test_scaled)
+
+# rmse_tuned <- sqrt(mean((preds - test_scaled$value_eur)^2))
+# mae_tuned  <- mean(abs(preds - test_scaled$value_eur))
+# 
+# 
+# rmse_tuned
+# mae_tuned
+# R2(preds_tuned, test_scaled$value_eur)
+
+postResample(pred = preds, obs = test_scaled$value_eur)
+
+```
+
+
+```{r}
+df_plot <- data.frame(
+  Actual = test_scaled$value_eur,
+  Predicted = preds
+)
+
+r2 <- cor(df_plot$Actual, df_plot$Predicted)^2
+
+ggplot(df_plot, aes(x = Actual, y = Predicted)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(intercept = 0, slope = 1, color = "red", linewidth = 1) +
+  annotate("text", x = min(df_plot$Actual), y = max(df_plot$Predicted),
+           label = paste("R² =", round(r2, 3)),
+           hjust = 0, size = 5) +
+  labs(
+    title = "Predicted vs Actual Potential (SVM)",
+    x = "Actual Potential",
+    y = "Predicted Potential"
+  ) +
+  theme_minimal()
 
 ```
 
