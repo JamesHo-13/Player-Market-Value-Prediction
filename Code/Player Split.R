@@ -1,5 +1,9 @@
 library(tidyverse)
 library(dplyr)
+library(readr)
+
+#coef_df %>% slice(-c(11:31)) -> coef_df
+coef_df %>% slice(-25) -> coef_df
 
 players <- read_csv("filtered_timeseries_fifa_players.csv", na = c('', 'NA', 'missing'))
 players <- select(players, -1)
@@ -34,8 +38,10 @@ midfielders <- filter(players_grouped, group == "Midfielder")
 defenders   <- filter(players_grouped, group == "Defender")
 
 
-attackers <- select(attackers, -55:-96)
-midfielders <- select(midfielders, -55:-96)
-defenders <- select(defenders, -55:-96)
+attackers <- select(attackers, -55:-100, -4, -7)
+midfielders <- select(midfielders, -55:-100, -4, -7)
+defenders <- select(defenders, -55:-100, -4, -7)
 
-
+write.csv(attackers, "attackers.csv", row.names = FALSE)
+write.csv(midfielders, "midfielders.csv", row.names = FALSE)
+write.csv(defenders, "defenders.csv", row.names = FALSE)

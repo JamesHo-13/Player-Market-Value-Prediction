@@ -189,7 +189,7 @@ data <- select(data, -56:-97, -5, -8)
 data$sofifa_id <- NULL
 
 # Keep numeric columns only
-numeric_data <- data[, sapply(data, is.numeric)]
+numeric_data <- attackers[, sapply(attackers, is.numeric)]
 
 # Remove missing values
 numeric_data <- na.omit(numeric_data)
@@ -377,3 +377,4 @@ ggplot(coef_df, aes(x = reorder(Variable, Coefficient),
     fill = "Positive Effect"
   ) +
   theme_minimal()
+
