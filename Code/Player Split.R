@@ -2,9 +2,6 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 
-#coef_df %>% slice(-c(11:31)) -> coef_df
-coef_df %>% slice(-25) -> coef_df
-
 players <- read_csv("filtered_timeseries_fifa_players.csv", na = c('', 'NA', 'missing'))
 players <- select(players, -1)
 head(players)

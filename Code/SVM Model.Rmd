@@ -17,8 +17,8 @@ knitr::knit_hooks$set(time_it = local({
 }))
 knitr::opts_chunk$set(time_it = TRUE)
 
-#knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
-knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
+knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
+#knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
 
 ```
 
@@ -36,9 +36,11 @@ library(ggplot2)
 ```{r}
 data <- read.csv("filtered_timeseries_fifa_players.csv")
 var <- read.csv("variables.csv")
+temp <- read.csv("defenders.csv")
 
 var <- as.character(unlist(var))
 df <- data %>% select(all_of(var), 7) %>% na.omit()
+#df <- temp %>% select(all_of(var), 5) %>% na.omit()
 
 ```
 
@@ -232,6 +234,11 @@ ggplot(importance_df, aes(x = reorder(Feature, Importance), y = Importance, fill
   geom_bar(stat = "identity") +
   coord_flip() +
   scale_fill_gradient(low = "lightgreen", high = "darkgreen") +
+  labs(
+    title = "Feature Importance (SVM Model) - Defenders",
+    x = "Feature",
+    y = "Importance"
+  ) +
   theme_minimal()
 
 ggplot(importance_top, aes(x = reorder(Feature, Importance), y = Importance, fill = Importance)) +
@@ -239,11 +246,12 @@ ggplot(importance_top, aes(x = reorder(Feature, Importance), y = Importance, fil
   coord_flip() +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
   labs(
-    title = "Top 25 Feature Importance (SVM Model)",
+    title = "Top 25 Feature Importance (SVM Model) - Defenders",
     x = "Feature",
     y = "Importance"
   ) +
-  theme_minimal(base_size = 14) +
+  #theme_minimal(base_size = 14) +
   theme(legend.position = "none")
 ```
+
 
