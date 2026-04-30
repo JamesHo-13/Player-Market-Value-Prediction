@@ -17,8 +17,8 @@ knitr::knit_hooks$set(time_it = local({
 }))
 knitr::opts_chunk$set(time_it = TRUE)
 
-#knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
-knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
+knitr::opts_knit$set(root.dir = "C:/Users/Jim/Documents/Project/STAT-472-Project/Data Frame")
+#knitr::opts_knit$set(root.dir = "D:/School/School Work/2025-2026/2026/STAT 472/STAT-472-Project/Data Frame")
 
 ```
 
@@ -272,7 +272,7 @@ importance_df <- data.frame(
 
 importance_df <- importance_df[order(importance_df$Importance, decreasing = TRUE), ]
 
-top_n <- 25
+top_n <- 5
 importance_top <- head(importance_df, top_n)
 
 ggplot(importance_df, aes(x = reorder(Feature, Importance), y = Importance, fill = Importance)) +
@@ -280,7 +280,7 @@ ggplot(importance_df, aes(x = reorder(Feature, Importance), y = Importance, fill
   coord_flip() +
   scale_fill_gradient(low = "lightgreen", high = "darkgreen") +
   labs(
-    title = "Feature Importance (SVM Model) - Defenders",
+    title = "Feature Importance (SVM Model)",
     x = "Feature",
     y = "Importance"
   ) +
@@ -291,7 +291,7 @@ ggplot(importance_top, aes(x = reorder(Feature, Importance), y = Importance, fil
   coord_flip() +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
   labs(
-    title = "Top 25 Feature Importance (SVM Model)",
+    title = "Top 5 Feature Importance (SVM Model)",
     x = "Feature",
     y = "Importance"
   ) +
