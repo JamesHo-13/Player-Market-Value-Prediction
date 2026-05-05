@@ -14,7 +14,7 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 # نگاه at structure (important!)
 str(data)
 
-data <- select(data, -56:-97)
+data <- select(data, -57:-98)
 data$sofifa_id <- NULL
 
 # -----------------------------
@@ -185,7 +185,7 @@ data <- read.csv("filtered_timeseries_fifa_players.csv")
 # 3. Clean data
 # -----------------------------
 # Remove ID columns (IMPORTANT)
-data <- select(data, -56:-97, -5, -8)
+data <- select(data, -57:-98, -6, -9)
 data$sofifa_id <- NULL
 
 # Keep numeric columns only

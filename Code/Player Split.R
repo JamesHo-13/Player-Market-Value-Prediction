@@ -35,9 +35,9 @@ midfielders <- filter(players_grouped, group == "Midfielder")
 defenders   <- filter(players_grouped, group == "Defender")
 
 
-attackers <- select(attackers, -55:-100, -4, -7)
-midfielders <- select(midfielders, -55:-100, -4, -7)
-defenders <- select(defenders, -55:-100, -4, -7)
+attackers <- select(attackers, -56:-101, -4, -5, -8, -13, -14, -18)
+midfielders <- select(midfielders, -56:-101, -4, -5, -8, -13, -14, -18)
+defenders <- select(defenders, -56:-101, -4, -5, -8, -13, -14, -18)
 
 write.csv(attackers, "attackers.csv", row.names = FALSE)
 write.csv(midfielders, "midfielders.csv", row.names = FALSE)

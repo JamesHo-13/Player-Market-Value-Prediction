@@ -39,7 +39,7 @@ var <- read.csv("variables.csv")
 temp <- read.csv("defenders.csv")
 
 var <- as.character(unlist(var))
-df <- data %>% select(all_of(var), 7) %>% na.omit()
+df <- data %>% select(all_of(var), value_eur, club_name, year) %>% na.omit()
 df$value_eur <- log(df$value_eur)
 #df <- temp %>% select(all_of(var), 5) %>% na.omit()
 
@@ -52,15 +52,21 @@ set.seed(123)
 train_index <- createDataPartition(df$value_eur, p = 0.7, list = FALSE)
 train <- df[train_index, ]
 test  <- df[-train_index, ]
+team_train <- train$club_name
+team_test <- test$club_name
+year_train <- train$year
+year_test <- test$year
 
 ```
 
 
 ```{r}
-preproc <- preProcess(train, method = c("center", "scale"))
+preproc <- preProcess(train %>% select(-value_eur, -club_name, -year), method = c("center", "scale"))
 
-train_scaled <- predict(preproc, train)
-test_scaled  <- predict(preproc, test)
+train_scaled <- predict(preproc, train %>% select(-value_eur, -club_name, -year))
+test_scaled  <- predict(preproc, test %>% select(-value_eur, -club_name, -year))
+train_scaled$value_eur <- train$value_eur
+test_scaled$value_eur  <- test$value_eur
 
 ```
 
@@ -223,6 +229,8 @@ ggplot(df_plot, aes(x = Actual, y = Predicted)) +
 residuals <- test_scaled$value_eur - preds
 
 df_res <- data.frame(
+  Year = year_test,
+  Team = team_test,
   Predicted = preds,
   Actual = test_scaled$value_eur,
   Residuals = residuals
@@ -304,7 +312,7 @@ ggplot(importance_top, aes(x = reorder(Feature, Importance), y = Importance, fil
   coord_flip() +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
   labs(
-    title = "Top 5 Feature Importance (SVM Model)",
+    title = "Top 25 Feature Importance (SVM Model)",
     x = "Feature",
     y = "Importance"
   ) +
@@ -312,4 +320,73 @@ ggplot(importance_top, aes(x = reorder(Feature, Importance), y = Importance, fil
   theme(legend.position = "none")
 ```
 
+
+```{r}
+team_residuals <- df_res %>%
+  group_by(Team) %>%
+  summarise(
+    Mean_Residual = mean(Residuals),
+    Acutal = mean(exp(Actual)),
+    Predicted = mean(exp(Predicted)),
+    MAE = mean(abs(Residuals)),
+    RMSE = sqrt(mean(Residuals^2)),
+    Count = n()) %>%
+  filter(Count >= 10) %>%
+  arrange(desc(Mean_Residual))
+
+team_residuals
+```
+
+
+```{r}
+rapids_residuals <- df_res %>%
+  filter(Team == "Colorado Rapids") %>%
+  group_by(Year) %>%
+  summarise(
+    Mean_Residual = mean(Residuals)
+    ) %>%
+  arrange(Year)
+
+rapids_score <- data.frame(
+  Year = c(2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022),
+  Won = c(9, 15, 9, 8, 12, 8, 17, 11)
+)
+
+rapids_score <- merge(rapids_score, rapids_residuals[, c("Year", "Mean_Residual")],
+                       by = "Year", all.x = TRUE)
+
+rapids_score
+```
+
+
+```{r}
+p <- ggplot(rapids_score, aes(x = Year)) + 
+  geom_line(aes(y = Mean_Residual, color = "Avg Log Residual"), linewidth = 1) + 
+  geom_point(aes(y = Mean_Residual, color = "Avg Log Residual") , size = 2) + 
+  
+  geom_line(aes(y = Won / 10, color = "Wins"), linewidth = 1) + 
+  geom_point(aes(y = Won / 10, color = "Wins"), size = 2) + 
+  
+  scale_x_continuous(breaks = rapids_score$Year) +
+  
+  scale_y_continuous(
+    name = "Average Log Residual (Efficiency)",
+    sec.axis = sec_axis(~.* 10, name = "Number of Game Won")
+    ) + 
+  
+  labs(
+    title = "Colorado Rapids: Roster Efficiency vs. Total Wins (2015-2022)", 
+    x = "Year", 
+    color = "Legend"
+    ) + 
+  
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+p
+```
+
+
+```{r}
+ggsave("Residuals vs Wins.pdf", plot = p, width = 12, height = 8, units = "in", dpi = 600)
+```
 
