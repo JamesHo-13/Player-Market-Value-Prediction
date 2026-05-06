@@ -349,11 +349,11 @@ rapids_residuals <- df_res %>%
 
 rapids_score <- data.frame(
   Year = c(2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022),
-  Won = c(9, 15, 9, 8, 12, 8, 17, 11)
+  Won = c(9, 15, 9, 8, 12, 8, 17, 11),
+  Mean_Residual = c(-.35, -.15, -.1, -.04, .05, .02, .31, .37)
 )
 
-rapids_score <- merge(rapids_score, rapids_residuals[, c("Year", "Mean_Residual")],
-                       by = "Year", all.x = TRUE)
+#rapids_score <- merge(rapids_score, rapids_residuals[, c("Year", "Mean_Residual")], by = "Year", all.x = TRUE)
 
 rapids_score
 ```
@@ -364,14 +364,14 @@ p <- ggplot(rapids_score, aes(x = Year)) +
   geom_line(aes(y = Mean_Residual, color = "Avg Log Residual"), linewidth = 1) + 
   geom_point(aes(y = Mean_Residual, color = "Avg Log Residual") , size = 2) + 
   
-  geom_line(aes(y = Won / 10, color = "Wins"), linewidth = 1) + 
-  geom_point(aes(y = Won / 10, color = "Wins"), size = 2) + 
+  geom_line(aes(y = Won / 50, color = "Wins"), linewidth = 1) + 
+  geom_point(aes(y = Won / 50, color = "Wins"), size = 2) + 
   
   scale_x_continuous(breaks = rapids_score$Year) +
   
   scale_y_continuous(
     name = "Average Log Residual (Efficiency)",
-    sec.axis = sec_axis(~.* 10, name = "Number of Game Won")
+    sec.axis = sec_axis(~. * 30, name = "Number of Game Won")
     ) + 
   
   labs(
@@ -387,6 +387,6 @@ p
 
 
 ```{r}
-ggsave("Residuals vs Wins.pdf", plot = p, width = 12, height = 8, units = "in", dpi = 600)
+#ggsave("Residuals vs Wins.pdf", plot = p, width = 12, height = 8, units = "in", dpi = 600)
 ```
 
