@@ -11,13 +11,8 @@ df_22 <- read.csv("players_22.csv") %>% add_column(year = 2022, .after = 'long_n
 
 all_players <- bind_rows(df_15, df_16, df_17, df_18, df_19, df_20, df_21, df_22)
 
+all_players <- all_players[, -c(74:111)]
+
 write.csv(all_players, "all_players.csv", row.names = FALSE)
-
-data <- data %>% 
-  left_join(all_players %>% 
-              select (sofifa_id, year, club_name), by = c("sofifa_id", "year")) %>% 
-  relocate(club_name, .after = long_name)
-
-write.csv(data, "filtered_timeseries_fifa_players.csv", row.names = FALSE)
 
 data <- data %>% filter(long_name == "Lionel Andrés Messi Cuccittini")
